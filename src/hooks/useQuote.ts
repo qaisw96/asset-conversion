@@ -35,12 +35,12 @@ export function useQuote(payAsset: Asset, amount: string, canRequest: boolean) {
   }, [payAsset, amount]);
 
   useEffect(() => {
+    setState({ status: "idle" });
+
     if (!canRequest) {
-      setState({ status: "idle" });
       return;
     }
 
-    setState({ status: "loading" });
     const timer = setTimeout(requestQuote, DEBOUNCE_MS);
 
     return () => {
