@@ -42,7 +42,7 @@ export function AssetField({
             onChangeText={onChangeText}
             editable={editable}
             placeholder="0.00"
-            placeholderTextColor={colors.disabled}
+            placeholderTextColor={colors.placeholder}
             keyboardType="decimal-pad"
             style={styles.amount}
           />

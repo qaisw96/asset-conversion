@@ -6,7 +6,7 @@ export const colors = {
   muted: "#5C6E6B",
   primary: "#0D6B62",
   primaryText: "#FFFFFF",
-  disabled: "#C9D3D1",
+  placeholder: "#C9D3D1",
   danger: "#B4362C",
   dangerBackground: "#FBE7E4",
   warning: "#8A5A00",
