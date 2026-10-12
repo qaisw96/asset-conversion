@@ -23,8 +23,8 @@ export function PrimaryButton({ title, onPress, disabled = false, loading = fals
         pressed && styles.pressed,
       ]}
     >
-      {loading && <ActivityIndicator color={colors.primaryText} />}
-      <Text style={styles.title}>{title}</Text>
+      {loading && <ActivityIndicator color={colors.muted} />}
+      <Text style={[styles.title, isDisabled && styles.disabledTitle]}>{title}</Text>
     </Pressable>
   );
 }
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   disabled: {
-    backgroundColor: colors.disabled,
+    backgroundColor: colors.border,
   },
   pressed: {
     opacity: 0.85,
@@ -49,5 +49,8 @@ const styles = StyleSheet.create({
     color: colors.primaryText,
     fontSize: 16,
     fontWeight: "700",
+  },
+  disabledTitle: {
+    color: colors.muted,
   },
 });

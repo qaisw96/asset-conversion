@@ -5,6 +5,7 @@
   "dependencies": {
     "@expo/ui": "~57.0.22",
     "decimal.js": "^10.6.0",
+    "dotenv": "^8.2.0",
     "expo": "~57.0.27",
     "expo-constants": "~57.0.21",
     "expo-device": "~57.0.2",
@@ -18,6 +19,7 @@
     "expo-symbols": "~57.0.3",
     "expo-system-ui": "~57.0.4",
     "expo-web-browser": "~57.0.3",
+    "node-fetch": "^3.3.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
@@ -37,7 +39,7 @@
     "typescript": "~6.0.3"
   },
   "scripts": {
-    "start": "expo start",
+    "start": "node init && expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",

@@ -1,56 +1,67 @@
-# Welcome to your Expo app 👋
+# Asset Conversion
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A small React Native app for converting between AED and USDT. You enter an amount, get a quote that's valid for 15 seconds, and confirm it.
 
-## Get started
+<p>
+  <img src="docs/screenshots/initial.png" width="200" alt="Initial screen" />
+  <img src="docs/screenshots/quote.png" width="200" alt="Quote ready" />
+  <img src="docs/screenshots/success.png" width="200" alt="Conversion succeeded" />
+  <img src="docs/screenshots/failure.png" width="200" alt="Conversion failed" />
+</p>
 
-1. Install dependencies
+## Running it
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Expo (SDK 57) and TypeScript.
 
 ```bash
-npm run reset-project
+npm install
+npx expo start   # scan the QR code with Expo Go, or press i / a for a simulator
+npm test
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Trying it out
 
-### Other setup steps
+- Type 100 AED → a quote appears after a short pause
+- Wait 15 seconds → the quote expires and can be refreshed
+- Type more than your balance → validation error, no quote
+- Confirm → success sheet, balances update
+- Use the **Simulation** switches at the bottom to make the quote or the conversion fail
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## How it's organised
 
-## Learn more
+```
+src/
+├── domain/       rates, fee, rounding, validation (pure functions + tests)
+├── services/     the conversion "backend" (mocked)
+├── store/        balances and simulation switches
+├── hooks/        useQuote and useConvert
+├── components/   UI pieces
+└── app/          the screen
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Dependencies point inwards (UI → hooks → services → domain). The screen doesn't know the service is mocked, so a real API would only change one file.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Decisions
 
-## Join the community
+- **decimal.js for money.** JS numbers are floating-point and can't store most decimals exactly, so rounding down could lose a cent. decimal.js keeps every amount exact.
+- **Display precision.** The brief rounds only the net amount down, but shows the AED fee as `1.83625`. I show gross and fee with up to 6 decimals so the card adds up, and the net always at full asset precision, so "995 USDT" in the brief appears as `995.000000 USDT`.
+- **Automatic quotes.** A quote is requested 400 ms after typing stops. The old quote is cleared immediately, so it can't be confirmed for the wrong amount.
+- **Stale responses.** The mock answers after a random 0.5–2.5 s, so an older request can finish after a newer one. Each request gets a number, and only the latest one's answer is shown.
+- **Expiry.** The countdown is based on the `expiresAt` timestamp, so it survives backgrounding. Expired quotes are blocked by the button, re-checked at tap time, and rejected by the service.
+- **Confirming.** The button is disabled while confirming, so a conversion can't be sent twice. Balances update only on success; a failed conversion leaves them unchanged.
+- **zustand for shared state.** Balances and the simulation switches are global; everything else is local to the screen and hooks. I chose it over Context because the mock service reads the switches outside React and components only re-render when the value they use changes, and over Redux because that's a lot of setup for two pieces of state.
 
-Join our community of developers creating universal apps.
+## Assumptions
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- The brief is cut off at "If the entered amount…". I assumed a changed amount discards the quote and requests a new one, and an amount above the balance shows an error.
+- With two assets, the pay asset decides the receive asset, so selection is one swap button.
+- Amounts must be above 0, within the balance, and within the asset's decimals. Amounts whose net rounds to 0 are rejected.
+
+## Testing
+
+Unit tests cover the three brief examples (exact match) and each validation rule. Hooks and UI were checked by hand with the simulation switches.
+
+## With more time
+
+- Dark mode
+- Localisation (translations, Arabic/RTL, local number formats)

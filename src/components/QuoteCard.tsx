@@ -53,7 +53,9 @@ export function QuoteCard({ state, secondsLeft, onRefresh }: Props) {
           />
         </View>
         {!isExpired && (
-          <Text style={styles.muted}>Quote expires in {secondsLeft}s</Text>
+          <Text style={[styles.muted, secondsLeft <= 5 && styles.warningText]}>
+            Quote expires in <Text style={styles.seconds}>{secondsLeft}s</Text>
+          </Text>
         )}
       </View>
 
@@ -156,6 +158,10 @@ const styles = StyleSheet.create({
   },
   warningText: {
     color: colors.warning,
+  },
+  seconds: {
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
   },
   textButton: {
     alignSelf: "flex-start",
